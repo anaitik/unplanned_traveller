@@ -1,0 +1,19 @@
+current directory: /home/nitik/project_djistra/unplanned_traveller/vendor/bundle/ruby/3.2.0/gems/debug-1.9.2/ext/debug
+/home/nitik/.rbenv/versions/3.2.2/bin/ruby extconf.rb
+creating Makefile
+
+current directory: /home/nitik/project_djistra/unplanned_traveller/vendor/bundle/ruby/3.2.0/gems/debug-1.9.2/ext/debug
+make DESTDIR\= sitearchdir\=./.gem.20240428-24223-90emif sitelibdir\=./.gem.20240428-24223-90emif clean
+
+current directory: /home/nitik/project_djistra/unplanned_traveller/vendor/bundle/ruby/3.2.0/gems/debug-1.9.2/ext/debug
+make DESTDIR\= sitearchdir\=./.gem.20240428-24223-90emif sitelibdir\=./.gem.20240428-24223-90emif
+compiling debug.c
+compiling iseq_collector.c
+linking shared-object debug/debug.so
+
+current directory: /home/nitik/project_djistra/unplanned_traveller/vendor/bundle/ruby/3.2.0/gems/debug-1.9.2/ext/debug
+make DESTDIR\= sitearchdir\=./.gem.20240428-24223-90emif sitelibdir\=./.gem.20240428-24223-90emif install
+/usr/bin/install -c -m 0755 debug.so ./.gem.20240428-24223-90emif/debug
+
+current directory: /home/nitik/project_djistra/unplanned_traveller/vendor/bundle/ruby/3.2.0/gems/debug-1.9.2/ext/debug
+make DESTDIR\= sitearchdir\=./.gem.20240428-24223-90emif sitelibdir\=./.gem.20240428-24223-90emif clean
