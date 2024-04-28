@@ -28,9 +28,14 @@ def self.shortest_path(start_city, end_city, intermediate_cities = [])
   end
 
   shortest_path = []
+  total_duration = 0
   node = end_city
   while node
     shortest_path.unshift(node)
+    if previous[node]
+      route_to_previous = Route.find_by(start_city_id: previous[node].id, end_city_id: node.id)
+      total_duration += route_to_previous.duration if route_to_previous
+    end
     node = previous[node]
   end
 
@@ -38,11 +43,15 @@ def self.shortest_path(start_city, end_city, intermediate_cities = [])
   if intermediate_cities.any?
     intermediate_cities.each do |city_name|
       city = City.find_by(name: city_name)
-      shortest_path.insert(shortest_path.index(end_city), city) if city && shortest_path.include?(end_city)
+      if city && shortest_path.include?(end_city)
+        shortest_path.insert(shortest_path.index(end_city), city)
+        route_to_intermediate = Route.find_by(start_city_id: shortest_path[shortest_path.index(city) - 1].id, end_city_id: city.id)
+        total_duration += route_to_intermediate.duration if route_to_intermediate
+      end
     end
   end
 
-  shortest_path
+  { path: shortest_path, total_duration: total_duration }
 end
 
 def self.intermediate_city_between?(start_city, intermediate_city, end_city, intermediate_cities)
@@ -56,6 +65,7 @@ def self.intermediate_city_between?(start_city, intermediate_city, end_city, int
     start_to_intermediate < intermediate_to_check && 
     intermediate_to_check < intermediate_to_end
 end
+
 
 end
 
