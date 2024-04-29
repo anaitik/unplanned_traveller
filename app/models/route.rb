@@ -19,14 +19,14 @@ def self.shortest_path(start_city, end_city, intermediate_cities = [], custom_du
     update_distances_and_previous(current_city, distances, previous, pq, custom_durations)
 
     total_duration = update_total_duration(current_city, previous, total_duration, custom_durations)
-    total_route_duration += calculate_route_duration(current_city, previous, custom_durations)
+    # total_route_duration += calculate_route_duration(current_city, previous, custom_durations)
   end
 
   shortest_path = reconstruct_shortest_path(end_city, previous)
   total_duration += calculate_total_duration(shortest_path, custom_durations)
-
+total_route_duration += calculate_route_duration(current_city, previous, custom_durations)
   include_intermediate_cities(start_city, end_city, intermediate_cities, shortest_path, total_duration, custom_durations)
-
+# byebug
   { path: shortest_path, total_duration: total_duration, total_route_duration: total_route_duration }
 end
 
@@ -50,7 +50,7 @@ end
     total_duration
   end
 
- def self.calculate_route_duration(current_city, previous, custom_durations)
+def self.calculate_route_duration(current_city, previous, custom_durations)
   return 0 unless previous[current_city]
 
   route_duration_between_cities = 0
@@ -58,13 +58,14 @@ end
 
   while previous[node]
     route = Route.find_by(start_city_id: previous[node].id, end_city_id: node.id)
-    route_duration_between_cities += route&.duration 
+    route_duration_between_cities += route&.duration || 0
     route_duration_between_cities += custom_durations[previous[node].name] || 0
     node = previous[node]
   end
 
   route_duration_between_cities
 end
+
 
 
   def self.reconstruct_shortest_path(end_city, previous)
@@ -104,6 +105,5 @@ end
 
   { path: shortest_path, total_duration: total_duration }
 end
-
 
 end
