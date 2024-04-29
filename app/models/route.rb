@@ -1,35 +1,32 @@
 class Route < ApplicationRecord
   belongs_to :start_city, class_name: 'City'
   belongs_to :end_city, class_name: 'City'
-def self.shortest_path(start_city, end_city, intermediate_cities = [], custom_durations = {})
-  distances = {}
-  previous = {}
-  total_duration = 0
-  total_route_duration = 0
 
-  distances[start_city] = 0
-  pq = PriorityQueue.new
-  pq.push(start_city, 0)
+  def self.shortest_path(start_city, end_city, intermediate_cities = [], custom_durations = {})
+    distances = {}
+    previous = {}
+    total_duration = 0
+    total_route_duration = 0
 
-  while !pq.empty?
-    current_city = pq.pop
+    distances[start_city] = 0
+    pq = PriorityQueue.new
+    pq.push(start_city, 0)
 
-    break if current_city == end_city
+    while !pq.empty?
+      current_city = pq.pop
 
-    update_distances_and_previous(current_city, distances, previous, pq, custom_durations)
+      break if current_city == end_city
 
-    total_duration = update_total_duration(current_city, previous, total_duration, custom_durations)
-    # total_route_duration += calculate_route_duration(current_city, previous, custom_durations)
+      update_distances_and_previous(current_city, distances, previous, pq, custom_durations)
+    end
+
+    shortest_path = reconstruct_shortest_path(end_city, previous)
+    total_duration += calculate_total_duration(shortest_path, custom_durations)
+    total_route_duration += calculate_route_duration(current_city, previous, custom_durations, intermediate_cities)
+    include_intermediate_cities(start_city, end_city, intermediate_cities, shortest_path, total_duration, custom_durations)
+
+    { path: shortest_path, total_duration: total_duration, total_route_duration: total_route_duration }
   end
-
-  shortest_path = reconstruct_shortest_path(end_city, previous)
-  total_duration += calculate_total_duration(shortest_path, custom_durations)
-total_route_duration += calculate_route_duration(current_city, previous, custom_durations)
-  include_intermediate_cities(start_city, end_city, intermediate_cities, shortest_path, total_duration, custom_durations)
-# byebug
-  { path: shortest_path, total_duration: total_duration, total_route_duration: total_route_duration }
-end
-
 
   private
 
@@ -45,28 +42,22 @@ end
     end
   end
 
-  def self.update_total_duration(current_city, previous, total_duration, custom_durations)
-    total_duration += custom_durations[current_city.name] || 0
-    total_duration
+  def self.calculate_route_duration(current_city, previous, custom_durations, intermediate_cities = [])
+    return 0 unless previous[current_city]
+
+    route_duration_between_cities = 0
+    node = current_city
+
+    while previous[node]
+      route = Route.find_by(start_city_id: previous[node].id, end_city_id: node.id)
+      route_duration_between_cities += route&.duration || 0
+      # Add custom duration only if the previous node (city) is in intermediate cities
+      route_duration_between_cities += custom_durations[previous[node].name] || 0 if intermediate_cities.include?(previous[node].name)
+      node = previous[node]
+    end
+
+    route_duration_between_cities
   end
-
-def self.calculate_route_duration(current_city, previous, custom_durations)
-  return 0 unless previous[current_city]
-
-  route_duration_between_cities = 0
-  node = current_city
-
-  while previous[node]
-    route = Route.find_by(start_city_id: previous[node].id, end_city_id: node.id)
-    route_duration_between_cities += route&.duration || 0
-    route_duration_between_cities += custom_durations[previous[node].name] || 0
-    node = previous[node]
-  end
-
-  route_duration_between_cities
-end
-
-
 
   def self.reconstruct_shortest_path(end_city, previous)
     shortest_path = []
@@ -89,21 +80,20 @@ end
   end
 
   def self.include_intermediate_cities(start_city, end_city, intermediate_cities, shortest_path, total_duration, custom_durations)
-  return { path: shortest_path, total_duration: total_duration } unless intermediate_cities
+    return { path: shortest_path, total_duration: total_duration } unless intermediate_cities
 
-  intermediate_cities.each do |city_name|
-    city = City.find_by(name: city_name)
-    next unless city && shortest_path.include?(end_city)
+    intermediate_cities.each do |city_name|
+      city = City.find_by(name: city_name)
+      next unless city && shortest_path.include?(end_city)
 
-    index = shortest_path.index(end_city)
-    shortest_path.insert(index, city)
-    total_duration += custom_durations[city.name] || 0
+      index = shortest_path.index(end_city)
+      shortest_path.insert(index, city)
+      total_duration += custom_durations[city.name] || 0
+    end
+
+    # Remove duplicates from the shortest path
+    shortest_path.uniq!
+
+    { path: shortest_path, total_duration: total_duration }
   end
-
-  # Remove duplicates from the shortest path
-  shortest_path.uniq!
-
-  { path: shortest_path, total_duration: total_duration }
-end
-
 end
