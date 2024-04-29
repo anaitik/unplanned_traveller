@@ -88,12 +88,19 @@ end
   end
 
   def self.include_intermediate_cities(start_city, end_city, intermediate_cities, shortest_path, total_duration, custom_durations)
-    intermediate_cities.each do |city_name|
-      city = City.find_by(name: city_name)
-      next unless city && shortest_path.include?(end_city)
+  intermediate_cities.each do |city_name|
+    city = City.find_by(name: city_name)
+    next unless city && shortest_path.include?(end_city)
 
-      shortest_path.insert(shortest_path.index(end_city), city)
-      total_duration += custom_durations[city.name] || 0
-    end
+    index = shortest_path.index(end_city)
+    shortest_path.insert(index, city)
+    total_duration += custom_durations[city.name] || 0
   end
+
+  # Remove duplicates from the shortest path
+  shortest_path.uniq!
+
+  { path: shortest_path, total_duration: total_duration }
+end
+
 end
