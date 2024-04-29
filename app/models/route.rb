@@ -88,6 +88,8 @@ end
   end
 
   def self.include_intermediate_cities(start_city, end_city, intermediate_cities, shortest_path, total_duration, custom_durations)
+  return { path: shortest_path, total_duration: total_duration } unless intermediate_cities
+
   intermediate_cities.each do |city_name|
     city = City.find_by(name: city_name)
     next unless city && shortest_path.include?(end_city)
@@ -102,5 +104,6 @@ end
 
   { path: shortest_path, total_duration: total_duration }
 end
+
 
 end
