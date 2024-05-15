@@ -10,5 +10,6 @@ Rails.application.routes.draw do
 
   post '/shortest_path', to: 'routes#shortest_path'
   post '/shortest_path_routes', to: 'port_routes#shortest_path'
+  get '/estimate_timings', to: 'estimate_timings_destinations#estimated_time'
 end
 
