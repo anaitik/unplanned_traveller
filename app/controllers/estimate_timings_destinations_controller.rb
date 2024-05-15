@@ -21,7 +21,7 @@ class EstimateTimingsDestinationsController < ApplicationController
       
       if distance_matrix_response['status'] == 'OK'
         # Extracting the estimated duration from the API response
-        estimated_time = distance_matrix_response['rows'][0]['elements'][0]['duration']['value'] / 60 # Converting seconds to minutes
+        estimated_time = distance_matrix_response['rows'][0]['elements'][0]['duration']['value'] / 24*60*60 # Converting seconds to minutes
         render json: { estimated_time: estimated_time }
       else
         render json: { error: 'Error fetching distance matrix data' }, status: :unprocessable_entity
@@ -33,20 +33,19 @@ class EstimateTimingsDestinationsController < ApplicationController
 
   private
 
-  def geocode_port(port_name)
-    # Use a geocoding service to get latitude and longitude for the given port name
-    # This is just a placeholder, you should replace it with a real geocoding service
-    # For example, you can use the Geocoding API from Google Maps or another provider
-    # Here's a basic example using a dummy geocoding service
-    response = RestClient.get("https://api.example.com/geocode?address=#{port_name}")
-    data = JSON.parse(response.body)
-    if data['status'] == 'OK'
-      coordinates = data['results'][0]['geometry']['location']
-      "#{coordinates['lat']},#{coordinates['lng']}"
-    else
-      nil
-    end
-  end
+	  def geocode_port(port_name)
+	  # Replace 'YOUR_API_KEY' with your actual Google Maps API key
+	  url = "https://maps.googleapis.com/maps/api/geocode/json?address=#{URI.encode(port_name)}&key=YOUR_API_KEY"
+	  response = RestClient.get(url)
+	  data = JSON.parse(response.body)
+	  if data['status'] == 'OK'
+	    location = data['results'][0]['geometry']['location']
+	    "#{location['lat']},#{location['lng']}"
+	  else
+	    nil
+	  end
+	end
+
 
   def distance_matrix_api_response(start_coordinates, end_coordinates)
     # Call the Google Maps Distance Matrix API to get the distance and duration between two points
