@@ -51,7 +51,7 @@ class EstimateTimingsDestinationsController < ApplicationController
   def distance_matrix_api_response(start_coordinates, end_coordinates)
     # Call the Google Maps Distance Matrix API to get the distance and duration between two points
     # Replace 'YOUR_API_KEY' with your actual Google Maps API key
-    url = "https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=#{start_coordinates}&destinations=#{end_coordinates}&key=YOUR_API_KEY"
+    uri = URI("https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=#{start_coordinates}&destinations=#{end_coordinates}&key=#{api_key}")
     response = RestClient.get(url)
     JSON.parse(response.body)
   end
