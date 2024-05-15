@@ -9,5 +9,6 @@ Rails.application.routes.draw do
   # root "posts#index"
 
   post '/shortest_path', to: 'routes#shortest_path'
+  post '/shortest_path_routes', to: 'port_routes#shortest_path'
 end
 
